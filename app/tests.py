@@ -58,13 +58,13 @@ class TestCreateView(TestCase):
 
 
 class TestViewView(TestCase):
-    def test_view_code_resolves_to_app_view(self):
+    def test_step1_view_code_resolves_to_app_view(self):
         response = self.client.get('/view/1/')
 
         self.assertEqual(response.resolver_match.view_name, 'app:view')
         self.assertEqual(response.resolver_match.kwargs['short_code'], '1')
 
-    def test_get_existing_link_renders_app_view_with_link(self):
+    def test_step2_get_existing_link_renders_app_view_with_link(self):
         l = Link.shorten('https://www.basecampcodingacademy.org')
 
         response = self.client.get(
@@ -73,7 +73,7 @@ class TestViewView(TestCase):
         self.assertTemplateUsed(response, 'app/view.html')
         self.assertEqual(response.context.get('link'), l)
 
-    def test_get_nonexistent_link_renders_app_view_with_None(self):
+    def test_step3_get_nonexistent_link_renders_app_view_with_None(self):
         response = self.client.get(
             reverse('app:view', kwargs={'short_code': 1}))
 
