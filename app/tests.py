@@ -24,9 +24,9 @@ class TestCreateView(TestCase):
             Link.objects.filter(
                 original='https://www.basecampcodingacademy.org').exists())
 
-    def test_step4_post_app_create_with_valid_url_redirects_to_app_view(self):
+    def test_step4_post_app_create_with_valid_url_redirects_to_app_show(self):
         '''Making a POST request to app:create with a valid url
-        should redirect to app:view the newly created link.'''
+        should redirect to app:show the newly created link.'''
         response = self.client.post(
             reverse('app:create'),
             {'url': 'https://www.basecampcodingacademy.org'})
@@ -35,7 +35,7 @@ class TestCreateView(TestCase):
             original='https://www.basecampcodingacademy.org')
 
         self.assertRedirects(
-            response, reverse('app:view', kwargs={'short_code': link.id}))
+            response, reverse('app:show', kwargs={'short_code': link.id}))
 
     def test_step5_post_app_create_with_invalid_url_response_with_422(self):
         '''Posting to app:create with an invalid url
@@ -56,27 +56,27 @@ class TestCreateView(TestCase):
         self.assertTrue(response.context.get('invalid_url'))
 
 
-class TestViewView(TestCase):
-    def test_step1_view_code_resolves_to_app_view(self):
-        response = self.client.get('/view/1/')
+class TestShowView(TestCase):
+    def test_step1_link_shortcode_resolves_to_app_show(self):
+        response = self.client.get('/link/1/')
 
-        self.assertEqual(response.resolver_match.view_name, 'app:view')
+        self.assertEqual(response.resolver_match.view_name, 'app:show')
         self.assertEqual(response.resolver_match.kwargs['short_code'], '1')
 
-    def test_step2_get_existing_link_renders_app_view_with_link(self):
+    def test_step2_get_existing_link_renders_app_show_with_link(self):
         l = Link.shorten('https://www.basecampcodingacademy.org')
 
         response = self.client.get(
-            reverse('app:view', kwargs={'short_code': l.short_code}))
+            reverse('app:show', kwargs={'short_code': l.short_code}))
 
-        self.assertTemplateUsed(response, 'app/view.html')
+        self.assertTemplateUsed(response, 'app/show.html')
         self.assertEqual(response.context.get('link'), l)
 
-    def test_step3_get_nonexistent_link_renders_app_view_with_None(self):
+    def test_step3_get_nonexistent_link_renders_app_show_with_None(self):
         response = self.client.get(
-            reverse('app:view', kwargs={'short_code': 1}))
+            reverse('app:show', kwargs={'short_code': 1}))
 
-        self.assertTemplateUsed(response, 'app/view.html')
+        self.assertTemplateUsed(response, 'app/show.html')
         self.assertEqual(response.context.get('link'), None)
 
 

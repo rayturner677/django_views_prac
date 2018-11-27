@@ -14,8 +14,8 @@ Expected paths:
 
 -   A path named 'create' at the root (an empty pattern), that dispatches your
     short link creation view.
--   A path named 'view' at 'view/\<short_code\>/' that dispatches to your short
-    link view view.
+-   A path named 'link' at 'link/\<short_code\>/' that dispatches to your short
+    link show view.
 -   A path named 'goto' at '\<short_code\>/' that dispatches to your short link
     goto view.
 
@@ -62,11 +62,11 @@ returned.
 
 I've done this part as well.
 
-There are two templates for you to use: `app/create.html` and `app/view.html`.
+There are two templates for you to use: `app/create.html` and `app/show.html`.
 
 `app/create.html` expects `invalid_url` to be either `True` or `False`.
 
-`app/view.html` expects `link` to be a `Link` or `None`.
+`app/show.html` expects `link` to be a `Link` or `None`.
 
 # You will know you are done when...
 
