@@ -1,6 +1,6 @@
 import django.test
 from django.urls import reverse, resolve
-from django.urls.exceptions import Resolver404
+from django.urls.exceptions import Resolver404, NoReverseMatch
 from app.models import Link
 
 
@@ -22,6 +22,18 @@ class TestCase(django.test.TestCase):
             self.assertEqual(
                 match.kwargs, kwargs,
                 f'{url} match with kwargs {match.kwargs} instead of {kwargs}')
+
+    def assertRedirectsTo(self, response, view_name, kwargs=None):
+        try:
+            match = reverse(view_name, kwargs=kwargs)
+        except NoReverseMatch:
+            raise AssertionError(
+                'Unable to determine path for the expected view\n'
+                f'{view_name} with {kwargs}\n\n'
+                f'Have you added a path named {view_name} to your urlpatterns?\n'
+                'Does it have the appropriate url parameters?') from None
+        else:
+            self.assertRedirects(response, match)
 
 
 class TestCreateView(TestCase):
@@ -55,21 +67,13 @@ class TestCreateView(TestCase):
         link = Link.objects.get(
             original='https://www.basecampcodingacademy.org')
 
-        self.assertRedirects(
+        self.assertRedirectsTo(
             response,
-            reverse('app:show', kwargs={'short_code': link.id}),
+            'app:show',
+            kwargs={'short_code': link.id},
         )
 
-    def test_step5_post_app_create_with_invalid_url_response_with_422(self):
-        'POSTing to app:create with an invalid url should respond with UNPROCESSABLE_ENTITY 422'
-        response = self.client.post(
-            reverse('app:create'),
-            {'url': 'not a valid url'},
-        )
-
-        self.assertEqual(response.status_code, 422)
-
-    def test_step6_post_app_create_with_invalid_url_renders_app_create_invalid_url(
+    def test_step5_post_app_create_with_invalid_url_renders_app_create_invalid_url(
             self):
         '''POSTing to app:create with an invalid url
         should render app/create.html with invalid_url as True'''
@@ -79,12 +83,22 @@ class TestCreateView(TestCase):
         self.assertTemplateUsed(response, 'app/create.html')
         self.assertTrue(response.context.get('invalid_url'))
 
+    def test_step6_post_app_create_with_invalid_url_response_with_422(self):
+        'POSTing to app:create with an invalid url should respond with UNPROCESSABLE_ENTITY 422'
+        response = self.client.post(
+            reverse('app:create'),
+            {'url': 'not a valid url'},
+        )
+
+        self.assertEqual(response.status_code, 422)
+
 
 class TestShowView(TestCase):
     def test_step1_link_shortcode_resolves_to_app_show(self):
         '''The path for /link/1/ should resolve to app:show
         with an argument `short_code` of 1.'''
-        self.assertResolvesTo('/link/1/', 'app:show', kwargs={'short_code': 2})
+        self.assertResolvesTo(
+            '/link/1/', 'app:show', kwargs={'short_code': '1'})
 
     def test_step2_get_existing_link_renders_app_show_with_link(self):
         '''app:show with the short_code for an existing link
@@ -112,9 +126,7 @@ class TestGotoView(TestCase):
     def test_step1_short_code_resolves_to_app_goto(self):
         '''The path for /1/' should resolve to app:goto
         with a `short_code` argument of 1.'''
-        response = self.client.get('/1/')
-
-        self.assertEqual(response.resolver_match.view_name, 'app:goto')
+        self.assertResolvesTo('/1/', 'app:goto', kwargs={'short_code': '1'})
 
     def test_step2_app_goto_with_existing_link_redirects_to_link_original(
             self):
@@ -133,4 +145,4 @@ class TestGotoView(TestCase):
         response = self.client.get(
             reverse('app:goto', kwargs={'short_code': 1}))
 
-        self.assertRedirects(response, reverse('app:create'))
+        self.assertRedirectsTo(response, 'app:create')
