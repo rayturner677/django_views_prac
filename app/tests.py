@@ -82,12 +82,13 @@ class TestViewView(TestCase):
 
 
 class TestGotoView(TestCase):
-    def test_short_code_resolves_to_app_goto(self):
+    def test_step1_short_code_resolves_to_app_goto(self):
         response = self.client.get('/1/')
 
         self.assertEqual(response.resolver_match.view_name, 'app:goto')
 
-    def test_app_goto_with_existing_link_redirects_to_link_original(self):
+    def test_step2_app_goto_with_existing_link_redirects_to_link_original(
+            self):
         l = Link.shorten('https://www.basecampcodingacademy.org')
 
         response = self.client.get(
@@ -96,7 +97,8 @@ class TestGotoView(TestCase):
         self.assertRedirects(
             response, l.original, fetch_redirect_response=False)
 
-    def test_app_goto_with_nonexistent_link_redirects_to_app_create(self):
+    def test_step3_app_goto_with_nonexistent_link_redirects_to_app_create(
+            self):
         response = self.client.get(
             reverse('app:goto', kwargs={'short_code': 1}))
 
