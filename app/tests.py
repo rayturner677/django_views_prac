@@ -4,17 +4,17 @@ from app.models import Link
 
 
 class TestCreateView(TestCase):
-    def test_root_resolves_to_app_create(self):
+    def test_step1_root_resolves_to_app_create(self):
         'The urlpattern for root should resolve to a view named app:create'
         response = self.client.get('/')
         self.assertEqual(response.resolver_match.view_name, 'app:create')
 
-    def test_get_app_create_renders_app_create_html(self):
+    def test_step2_get_app_create_renders_app_create_html(self):
         'Making a GET request to app:create should render with app/create.html'
         response = self.client.get(reverse('app:create'))
         self.assertTemplateUsed('app/create.html')
 
-    def test_post_app_create_with_valid_url_creates_link(self):
+    def test_step3_post_app_create_with_valid_url_creates_link(self):
         'Make a POST request to app:create with a valid url creates a new Link'
         response = self.client.post(
             reverse('app:create'),
@@ -24,7 +24,7 @@ class TestCreateView(TestCase):
             Link.objects.filter(
                 original='https://www.basecampcodingacademy.org').exists())
 
-    def test_post_app_create_with_valid_url_redirects_to_app_view(self):
+    def test_step4_post_app_create_with_valid_url_redirects_to_app_view(self):
         '''Making a POST request to app:create with a valid url
         should redirect to app:view the newly created link.'''
         response = self.client.post(
@@ -38,7 +38,7 @@ class TestCreateView(TestCase):
                              reverse(
                                  'app:view', kwargs={'short_code': link.id}))
 
-    def test_post_app_create_with_invalid_url_response_with_422(self):
+    def test_step5_post_app_create_with_invalid_url_response_with_422(self):
         '''Posting to app:create with an invalid url
         should respond with UNPROCESSABLE_ENTITY 403'''
         response = self.client.post(
@@ -46,7 +46,7 @@ class TestCreateView(TestCase):
 
         self.assertEqual(response.status_code, 422)
 
-    def test_post_app_create_with_invalid_url_renders_app_create_invalid_url(
+    def test_step6_post_app_create_with_invalid_url_renders_app_create_invalid_url(
             self):
         '''Posting to app:create with an invalid url
         should render app/create.html with invalid_url as True'''
