@@ -34,9 +34,8 @@ class TestCreateView(TestCase):
         link = Link.objects.get(
             original='https://www.basecampcodingacademy.org')
 
-        self.assertRedirects(response,
-                             reverse(
-                                 'app:view', kwargs={'short_code': link.id}))
+        self.assertRedirects(
+            response, reverse('app:view', kwargs={'short_code': link.id}))
 
     def test_step5_post_app_create_with_invalid_url_response_with_422(self):
         '''Posting to app:create with an invalid url
