@@ -1,0 +1,9 @@
+{% extends 'app/base.html' %}
+{% block body %}
+{% if link %}
+    <p>Short Code: <a href="{% url 'app:goto' short_code=link.short_code %}">{{link.short_code}}</a></p>
+    <p>Original: <a href="{{ link.original }}">{{ link.original }}</a></p>
+{% else %}
+    <h3>Link does not exist!</h3>
+{% endif %}
+{% endblock body %}

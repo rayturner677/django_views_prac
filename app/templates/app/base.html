@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>BCCA - Links</title>
+    <link rel="stylesheet" href="{% static 'app/bootstrap/css/bootstrap.css' %}">
+</head>
+
+<body>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav-links" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'app:create' %}">BCCA - Links</a>
+        </div>
+
+        <div class="collapse navbar-collapse navbar-ex1-collapse" id="nav-links">
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="{% url 'app:create' %}">Create</a>
+                </li>
+            </ul>
+            <div class="navbar-form navbar-left">
+                <div class="form-group">
+                    <input id="nav-view-short-code-input" class="form-control" name="short_code" type="text" style="width: 200px;" placeholder="Short Code">
+                </div>
+                <button id="nav-view-submit" class="btn btn-default">View</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+    {% block body %}{% endblock body %}
+    </div>
+    <script src="{% static 'app/jquery.js' %}"></script>
+    <script src="{% static 'app/bootstrap/js/bootstrap.js' %}"></script>
+    <script src="{% static 'app/nav.js' %}"></script>
+</body>
+
+</html>
