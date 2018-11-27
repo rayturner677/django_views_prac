@@ -5,7 +5,7 @@ from app.models import Link
 
 class TestCreateView(TestCase):
     def test_step1_root_resolves_to_app_create(self):
-        'The urlpattern for root should resolve to a view named app:create'
+        'The path for root (the empty path) should resolve to a view named app:create'
         response = self.client.get('/')
         self.assertEqual(response.resolver_match.view_name, 'app:create')
 
@@ -15,7 +15,7 @@ class TestCreateView(TestCase):
         self.assertTemplateUsed('app/create.html')
 
     def test_step3_post_app_create_with_valid_url_creates_link(self):
-        'Make a POST request to app:create with a valid url creates a new Link'
+        'Make a POST request to app:create with a valid url should create a new Link'
         response = self.client.post(
             reverse('app:create'),
             {'url': 'https://www.basecampcodingacademy.org'})
@@ -26,7 +26,7 @@ class TestCreateView(TestCase):
 
     def test_step4_post_app_create_with_valid_url_redirects_to_app_show(self):
         '''Making a POST request to app:create with a valid url
-        should redirect to app:show the newly created link.'''
+        should redirect to app:show for the newly created link.'''
         response = self.client.post(
             reverse('app:create'),
             {'url': 'https://www.basecampcodingacademy.org'})
@@ -35,11 +35,12 @@ class TestCreateView(TestCase):
             original='https://www.basecampcodingacademy.org')
 
         self.assertRedirects(
-            response, reverse('app:show', kwargs={'short_code': link.id}))
+            response,
+            reverse('app:show', kwargs={'short_code': link.id}),
+        )
 
     def test_step5_post_app_create_with_invalid_url_response_with_422(self):
-        '''Posting to app:create with an invalid url
-        should respond with UNPROCESSABLE_ENTITY 403'''
+        'POSTing to app:create with an invalid url should respond with UNPROCESSABLE_ENTITY 422'
         response = self.client.post(
             reverse('app:create'), {'url': 'not a valid url'})
 
@@ -47,7 +48,7 @@ class TestCreateView(TestCase):
 
     def test_step6_post_app_create_with_invalid_url_renders_app_create_invalid_url(
             self):
-        '''Posting to app:create with an invalid url
+        '''POSTing to app:create with an invalid url
         should render app/create.html with invalid_url as True'''
         response = self.client.post(
             reverse('app:create'), {'url': 'not a valid url'})
@@ -58,21 +59,28 @@ class TestCreateView(TestCase):
 
 class TestShowView(TestCase):
     def test_step1_link_shortcode_resolves_to_app_show(self):
+        '''The path for /link/1/ should resolve to app:show
+        with an argument `short_code` of 1.'''
         response = self.client.get('/link/1/')
 
         self.assertEqual(response.resolver_match.view_name, 'app:show')
         self.assertEqual(response.resolver_match.kwargs['short_code'], '1')
 
     def test_step2_get_existing_link_renders_app_show_with_link(self):
+        '''app:show with the short_code for an existing link
+        renders app/show.html with the short_code's link provided in
+        the context.'''
         l = Link.shorten('https://www.basecampcodingacademy.org')
 
         response = self.client.get(
-            reverse('app:show', kwargs={'short_code': l.short_code}))
+            reverse('app:show', kwargs={'short_code': l.short_code}), )
 
         self.assertTemplateUsed(response, 'app/show.html')
         self.assertEqual(response.context.get('link'), l)
 
     def test_step3_get_nonexistent_link_renders_app_show_with_None(self):
+        '''If the link doesn't exist, the app:show should render app/show.html
+        with `None` as "link" in the context.'''
         response = self.client.get(
             reverse('app:show', kwargs={'short_code': 1}))
 
@@ -82,12 +90,15 @@ class TestShowView(TestCase):
 
 class TestGotoView(TestCase):
     def test_step1_short_code_resolves_to_app_goto(self):
+        '''The path for /1/' should resolve to app:goto
+        with a `short_code` argument of 1.'''
         response = self.client.get('/1/')
 
         self.assertEqual(response.resolver_match.view_name, 'app:goto')
 
     def test_step2_app_goto_with_existing_link_redirects_to_link_original(
             self):
+        'app:goto should redirect to short_code\'s link\'s original url'
         l = Link.shorten('https://www.basecampcodingacademy.org')
 
         response = self.client.get(
@@ -98,6 +109,7 @@ class TestGotoView(TestCase):
 
     def test_step3_app_goto_with_nonexistent_link_redirects_to_app_create(
             self):
+        'If short_code doesn\'t exist, it should redirect to app:create'
         response = self.client.get(
             reverse('app:goto', kwargs={'short_code': 1}))
 
