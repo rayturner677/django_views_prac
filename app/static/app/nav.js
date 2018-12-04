@@ -1,6 +1,6 @@
 function main() {
-    $('#nav-view-submit').click(() => {
-        location = '/view/' + encodeURI($('#nav-view-short-code-input').val());
+    $("#nav-view-submit").click(() => {
+        location = "/link/" + encodeURI($("#nav-view-short-code-input").val());
     });
 }
 
