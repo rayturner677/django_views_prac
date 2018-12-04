@@ -74,3 +74,4 @@ There are two templates for you to use: `app/create.html` and `app/show.html`.
 2.  View the original url from that short link.
 3.  Use the service to go to the original url when given a short link.
 4.  **You pass all the tests**
+# django_views_prac
